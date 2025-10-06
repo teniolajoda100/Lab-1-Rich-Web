@@ -77,7 +77,7 @@ boxes.forEach((box, index) => {
             box.style.backgroundImage = 'url("image1.jpg")'; // your image
             box.style.backgroundSize = 'cover';
             box.style.backgroundPosition = 'center';
-            message.textContent = `You found it in ${tries} ${tries === 1 ? 'try' : 'tries'}! 🎉`;
+            message.textContent = `You found it in ${tries} ${tries === 1 ? 'try' : 'tries'}!`;
             gameActive = false;
         } else {
             box.textContent = 'Not here';
