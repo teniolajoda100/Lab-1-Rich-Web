@@ -4,10 +4,10 @@ const dialog = document.querySelector('dialog');
 form.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  // Close the dialog
+  //Close the dialog
   dialog.close();
 
-  // Gather form data
+  //Gather form data
   const data = new FormData(form);
   let message = "Registration successful!\n\nDetails:\n";
 
@@ -15,6 +15,6 @@ form.addEventListener('submit', (e) => {
     message += `${key}: ${value}\n`;
   }
 
-  // Show confirmation
+  // Show confirmations
   alert(message);
 });
