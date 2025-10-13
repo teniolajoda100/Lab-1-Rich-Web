@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drag & Drop Box App</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      position: relative; /* allows absolute box placement */
+    }
+
+    .row {
+      display: flex;
+      flex: 1;
+    }
+
+    .corner {
+      flex: 1;
+      /* no border, no centering — just drop zones */
+    }
+
+    #draggableBox {
+      width: 200px;
+      height: 200px;
+      background-color: salmon;
+      cursor: grab;
+      position: absolute; /* box will snap to corners */
+    }
+
+    /* Center text */
+    #centerText {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <div class="corner" id="top-left"></div>
+    <div class="corner" id="top-right"></div>
+  </div>
+  <div class="row">
+    <div class="corner" id="bottom-left"></div>
+    <div class="corner" id="bottom-right"></div>
+  </div>
+
+  <!-- Centered static text -->
+  <div id="centerText">Moving box</div>
+
+  <script>
+    const box = document.createElement('div');
+    box.id = 'draggableBox';
+    box.draggable = true;
+    document.body.appendChild(box);
+
+    // Drag start
+    box.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', box.id);
+    });
+
+    // Corner snap logic
+    function moveToCorner(cornerId) {
+      const boxSize = 80; // matches CSS
+      const margin = 0;
+      // Reset position
+      box.style.top = box.style.right = box.style.bottom = box.style.left = "auto";
+
+      switch (cornerId) {
+        case "top-left":
+          box.style.top = margin + "px";
+          box.style.left = margin + "px";
+          break;
+        case "top-right":
+          box.style.top = margin + "px";
+          box.style.right = margin + "px";
+          break;
+        case "bottom-left":
+          box.style.bottom = margin + "px";
+          box.style.left = margin + "px";
+          break;
+        case "bottom-right":
+          box.style.bottom = margin + "px";
+          box.style.right = margin + "px";
+          break;
+      }
+
+      // Save in localStorage
+      localStorage.setItem("boxPosition", cornerId);
+    }
+
+    // Setup drop targets
+    document.querySelectorAll('.corner').forEach(corner => {
+      corner.addEventListener('dragover', (e) => e.preventDefault());
+      corner.addEventListener('drop', (e) => {
+        e.preventDefault();
+        moveToCorner(corner.id);
+      });
+    });
+
+    // Restore saved position or default
+    const saved = localStorage.getItem('boxPosition');
+    if (saved) {
+      moveToCorner(saved);
+    } else {
+      moveToCorner("top-left");
+    }
+
+    // Random background color on click
+    document.body.addEventListener('click', () => {
+      const hue = Math.floor(Math.random() * 360);
+      const light = 72 + Math.floor(Math.random() * 6);
+      document.body.style.backgroundColor = `hsl(${hue}, 70%, ${light}%)`;
+    });
+  </script>
+</body>
+</html>
