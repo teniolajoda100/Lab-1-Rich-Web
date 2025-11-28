@@ -15,7 +15,7 @@ class MemoryGame extends HTMLElement {
     this.cols = parseInt(cols);
     this.totalCards = this.rows * this.cols;
     
-    // Check if even number of cards
+    //check if even number of cards
     if (this.totalCards % 2 !== 0) {
         console.error('Grid must have even number of cards');
         return;
@@ -34,12 +34,12 @@ generateCardPairs() {
         const shape = shapes[i % shapes.length];
         const color = colors[Math.floor(i / shapes.length) % colors.length];
         
-        // Create two identical cards for matching
+        //create two identical cards for matching
         cards.push({ shape, color });
         cards.push({ shape, color });
     }
     
-    // Shuffle the cards
+    //shuffle the cards
     return cards.sort(() => Math.random() - 0.5);
 }
 }
