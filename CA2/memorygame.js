@@ -42,6 +42,37 @@ generateCardPairs() {
     //shuffle the cards
     return cards.sort(() => Math.random() - 0.5);
 }
+async createBoard() {
+    const cards = this.generateCardPairs();
+    
+    //fetching and importingCSS
+    const cssResponse = await fetch('memorygame.css');
+    const cssText = await cssResponse.text();
+    
+    this.shadowRoot.innerHTML = `
+        <style>
+            ${cssText}
+            .game-board {
+                grid-template-columns: repeat(${this.cols}, 1fr);
+                grid-template-rows: repeat(${this.rows}, 1fr);
+            }
+        </style>
+        <div class="game-board" id="board"></div>
+    `;
+    
+    const board = this.shadowRoot.getElementById('board');
+    
+    cards.forEach((card, index) => {
+        const shapeCard = document.createElement('shape-card');
+        shapeCard.setAttribute('shape', card.shape);
+        shapeCard.setAttribute('color', card.color);
+        shapeCard.dataset.index = index;
+        shapeCard.dataset.shape = card.shape;
+        shapeCard.dataset.color = card.color;
+        board.appendChild(shapeCard);
+    });
 }
+}
+
 
 customElements.define('memory-game', MemoryGame);
