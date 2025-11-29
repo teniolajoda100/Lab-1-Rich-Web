@@ -1,8 +1,11 @@
 class MemoryGame extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-    }
+   constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.flippedCards = [];
+    this.matchedPairs = 0;
+    this.canClick = true;
+}      
 
     connectedCallback() {
         const dimensions = this.getAttribute('dimensions') || '3 x 4';
@@ -63,14 +66,17 @@ async createBoard() {
     const board = this.shadowRoot.getElementById('board');
     
     cards.forEach((card, index) => {
-        const shapeCard = document.createElement('shape-card');
-        shapeCard.setAttribute('shape', card.shape);
-        shapeCard.setAttribute('color', card.color);
-        shapeCard.dataset.index = index;
-        shapeCard.dataset.shape = card.shape;
-        shapeCard.dataset.color = card.color;
-        board.appendChild(shapeCard);
-    });
+    const shapeCard = document.createElement('shape-card');
+    shapeCard.setAttribute('shape', card.shape);
+    shapeCard.setAttribute('color', card.color);
+    shapeCard.dataset.index = index;
+    shapeCard.dataset.shape = card.shape;
+    shapeCard.dataset.color = card.color;
+    
+    shapeCard.addEventListener('click', () => this.handleCardClick(shapeCard));
+    
+    board.appendChild(shapeCard);
+});
 }
 }
 
