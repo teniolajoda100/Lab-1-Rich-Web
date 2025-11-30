@@ -45,38 +45,45 @@ class MemoryGame extends HTMLElement {
     }
 
     async createBoard() {
-        const cards = this.generateCardPairs();
+    const cards = this.generateCardPairs();
+    
+    this.shadowRoot.innerHTML = `
+        <style>
+            .game-board {
+                display: grid;
+                grid-template-columns: repeat(${this.cols}, 120px);
+                grid-template-rows: repeat(${this.rows}, 120px);
+                gap: 15px;
+                padding: 20px;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            shape-card {
+                cursor: pointer;
+            }
+            shape-card.matched {
+                opacity: 0.6;
+                cursor: default;
+            }
+        </style>
+        <div class="game-board" id="board"></div>
+    `;
+    
+    const board = this.shadowRoot.getElementById('board');
+    
+    cards.forEach((card, index) => {
+        const shapeCard = document.createElement('shape-card');
+        shapeCard.setAttribute('type', card.shape);
+        shapeCard.setAttribute('colour', card.color);
+        shapeCard.dataset.index = index;
+        shapeCard.dataset.shape = card.shape;
+        shapeCard.dataset.color = card.color;
         
-        // Fetch external CSS file
-        const cssResponse = await fetch('memorygame.css');
-        const cssText = await cssResponse.text();
+        shapeCard.addEventListener('click', () => this.handleCardClick(shapeCard));
         
-        this.shadowRoot.innerHTML = `
-            <style>
-                ${cssText}
-                .game-board {
-                    grid-template-columns: repeat(${this.cols}, 120px);
-                    grid-template-rows: repeat(${this.rows}, 120px);
-                }
-            </style>
-            <div class="game-board" id="board"></div>
-        `;
-        
-        const board = this.shadowRoot.getElementById('board');
-        
-        cards.forEach((card, index) => {
-            const shapeCard = document.createElement('shape-card');
-            shapeCard.setAttribute('type', card.shape);
-            shapeCard.setAttribute('colour', card.color);
-            shapeCard.dataset.index = index;
-            shapeCard.dataset.shape = card.shape;
-            shapeCard.dataset.color = card.color;
-            
-            shapeCard.addEventListener('click', () => this.handleCardClick(shapeCard));
-            
-            board.appendChild(shapeCard);
-        });
-    }
+        board.appendChild(shapeCard);
+    });
+}
 
     handleCardClick(card) {
         if (!this.canClick || this.flippedCards.includes(card) || card.classList.contains('matched')) {
