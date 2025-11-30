@@ -78,6 +78,48 @@ async createBoard() {
     board.appendChild(shapeCard);
 });
 }
+handleCardClick(card) {
+    // Prevent clicking if waiting, card already flipped, or card matched
+    if (!this.canClick || this.flippedCards.includes(card) || card.classList.contains('matched')) {
+        return;
+    }
+    
+    card.flip();
+    this.flippedCards.push(card);
+    
+    if (this.flippedCards.length === 2) {
+        this.checkForMatch();
+    }
+}
+checkForMatch() {
+    this.canClick = false;
+    const [card1, card2] = this.flippedCards;
+    
+    const isMatch = card1.dataset.shape === card2.dataset.shape && 
+                    card1.dataset.color === card2.dataset.color;
+    
+    setTimeout(() => {
+        if (isMatch) {
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            this.matchedPairs++;
+            
+            if (this.matchedPairs === this.totalCards / 2) {
+                this.gameWon();
+            }
+        } else {
+            card1.flip();
+            card2.flip();
+        }
+        this.flippedCards = [];
+        this.canClick = true;
+    }, 1000);
+}
+gameWon() {
+    setTimeout(() => {
+        alert('Congratulations! You found all matches!');
+    }, 500);
+}
 }
 
 
