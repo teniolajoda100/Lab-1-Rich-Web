@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
 class MemoryGame extends HTMLElement {
    constructor() {
     super();
@@ -150,11 +153,30 @@ class MemoryGame extends HTMLElement {
         }, 1000);
     }
 
-    gameWon() {
-        setTimeout(() => {
-            alert('Congratulations! You found all matches!');
-        }, 500);
+async gameWon() {
+    // Save game result to Firestore
+    await this.saveGameResult();
+    
+    setTimeout(() => {
+        alert(`Congratulations! You found all matches in ${this.clickCount} clicks!`);
+    }, 500);
+  }  
+  async saveGameResult() {
+    try {
+        const gameResult = {
+            clicks: this.clickCount,
+            timestamp: serverTimestamp(),
+            dimensions: this.getAttribute('dimensions') || '3 x 4',
+            totalCards: this.totalCards
+        };
+
+        await addDoc(collection(db, 'gameResults'), gameResult);
+        console.log('Game result saved to Firestore:', gameResult);
+    } catch (error) {
+        console.error('Error saving game result to Firestore:', error);
+        // Game continues even if save fails - don't interrupt user experience
     }
+} 
 }
 
 customElements.define('memory-game', MemoryGame);
