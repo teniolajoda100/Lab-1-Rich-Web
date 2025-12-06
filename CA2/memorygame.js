@@ -11,12 +11,12 @@ class MemoryGame extends HTMLElement {
     //track total clicks for statistics
     this.clickCount = 0; 
 }
-
+    // when an element is added to dom 
     connectedCallback() {
         const dimensions = this.getAttribute('dimensions') || '3 x 4';
         this.setupGame(dimensions);
     }
-
+    // Setting up game grid based on dimensions
     setupGame(dimensions) {
         const [rows, cols] = dimensions.split('x').map(s => s.trim());
         this.rows = parseInt(rows);
@@ -30,11 +30,12 @@ class MemoryGame extends HTMLElement {
         
         this.createBoard();
     }
-
+    // Generating the card pairs 
     generateCardPairs() {
         const shapes = ['circle', 'square', 'triangle'];
         const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
         
+        //calculate number of pairs needed
         const pairsNeeded = this.totalCards / 2;
         const cards = [];
         
@@ -48,7 +49,7 @@ class MemoryGame extends HTMLElement {
         
         return cards.sort(() => Math.random() - 0.5);
     }
-
+    //Creating the game board
     async createBoard() {
     const cards = this.generateCardPairs();
     
@@ -64,6 +65,33 @@ class MemoryGame extends HTMLElement {
             margin-bottom: 20px;
             font-size: 1.2em;
             font-weight: bold;
+        }
+            
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        } 
+        .stats-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }     
+        .stats-button:hover {
+            background-color: #45a049;
+        }
+        .stats-button:active {
+            background-color: #3d8b40;
+        }
+        .average-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #333;
+            min-height: 25px;
         }
         .game-board {
             display: grid;
@@ -86,12 +114,16 @@ class MemoryGame extends HTMLElement {
         <div class="stats">
             Clicks: <span id="click-counter">0</span>
         </div>
+        <div class="controls">
+            <button class="stats-button" id="show-average-btn">Show Average Clicks</button>
+            <div class="average-display" id="average-display"></div>
+        </div>
         <div class="game-board" id="board"></div>
     </div>
 `;
     
     const board = this.shadowRoot.getElementById('board');
-    
+    //add event listener for average clicks button
     cards.forEach((card, index) => {
         const shapeCard = document.createElement('shape-card');
         shapeCard.setAttribute('type', card.shape);
@@ -104,6 +136,9 @@ class MemoryGame extends HTMLElement {
         
         board.appendChild(shapeCard);
         });
+    //add event listener for the statistics button
+    const showAverageBtn = this.shadowRoot.getElementById('show-average-btn');
+    showAverageBtn.addEventListener('click', () => this.displayAverageClicks());
     }
 
     handleCardClick(card) {
@@ -120,13 +155,14 @@ class MemoryGame extends HTMLElement {
             this.checkForMatch();
         }
     }
+    //display average clicks from firestore
     updateClickDisplay() {
     const counter = this.shadowRoot.getElementById('click-counter');
     if (counter) {
         counter.textContent = this.clickCount;
         }
     }
-
+    //fetch and display average clicks from firestore
     checkForMatch() {
         this.canClick = false;
         const [card1, card2] = this.flippedCards;
@@ -152,7 +188,7 @@ class MemoryGame extends HTMLElement {
             this.canClick = true;
         }, 1000);
     }
-
+    
 async gameWon() {
     // Save game result to Firestore
     await this.saveGameResult();
