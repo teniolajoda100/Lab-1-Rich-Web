@@ -1,11 +1,13 @@
 class MemoryGame extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-        this.flippedCards = [];
-        this.matchedPairs = 0;
-        this.canClick = true;
-    }
+   constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    this.flippedCards = [];
+    this.matchedPairs = 0;
+    this.canClick = true;
+    //track total clicks for statistics
+    this.clickCount = 0; 
+}
 
     connectedCallback() {
         const dimensions = this.getAttribute('dimensions') || '3 x 4';
@@ -48,26 +50,42 @@ class MemoryGame extends HTMLElement {
     const cards = this.generateCardPairs();
     
     this.shadowRoot.innerHTML = `
-        <style>
-            .game-board {
-                display: grid;
-                grid-template-columns: repeat(${this.cols}, 120px);
-                grid-template-rows: repeat(${this.rows}, 120px);
-                gap: 15px;
-                padding: 20px;
-                max-width: 800px;
-                margin: 0 auto;
-            }
-            shape-card {
-                cursor: pointer;
-            }
-            shape-card.matched {
-                opacity: 0.6;
-                cursor: default;
-            }
-        </style>
+    <style>
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(${this.cols}, 120px);
+            grid-template-rows: repeat(${this.rows}, 120px);
+            gap: 15px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        shape-card {
+            cursor: pointer;
+        }
+        shape-card.matched {
+            opacity: 0.6;
+            cursor: default;
+        }
+    </style>
+    <div class="game-container">
+        <div class="stats">
+            Clicks: <span id="click-counter">0</span>
+        </div>
         <div class="game-board" id="board"></div>
-    `;
+    </div>
+`;
     
     const board = this.shadowRoot.getElementById('board');
     
@@ -82,19 +100,27 @@ class MemoryGame extends HTMLElement {
         shapeCard.addEventListener('click', () => this.handleCardClick(shapeCard));
         
         board.appendChild(shapeCard);
-    });
-}
+        });
+    }
 
     handleCardClick(card) {
         if (!this.canClick || this.flippedCards.includes(card) || card.classList.contains('matched')) {
             return;
         }
-        
+
+        this.clickCount++;
+        this.updateClickDisplay();
         card.flip();
         this.flippedCards.push(card);
         
         if (this.flippedCards.length === 2) {
             this.checkForMatch();
+        }
+    }
+    updateClickDisplay() {
+    const counter = this.shadowRoot.getElementById('click-counter');
+    if (counter) {
+        counter.textContent = this.clickCount;
         }
     }
 
